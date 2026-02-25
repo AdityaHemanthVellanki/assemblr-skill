@@ -1,0 +1,12 @@
+{
+  "name": "@assemblr/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@prisma/client": "^6.2.0",
+    "bullmq": "^5.30.0",
+    "ioredis": "^5.4.0"
+  }
+}
