@@ -54,7 +54,6 @@ assemblr-skill/
 - Supabase project (Postgres)
 - Upstash Redis instance (with TLS / `rediss://`)
 - Composio account + API key
-- Stripe account (for payment webhooks)
 
 ## Setup
 
@@ -80,8 +79,6 @@ Fill in all values in `.env`:
 | `JWT_SECRET` | Random 256-bit secret for JWT signing |
 | `ENCRYPTION_KEY` | 64-char hex key for AES-256-GCM encryption |
 | `COMPOSIO_API_KEY` | Composio API key |
-| `STRIPE_SECRET_KEY` | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
 
 ### 3. Generate Prisma client + push schema
 
@@ -123,7 +120,7 @@ npm run dev -w services/worker
 2. Set **Root Directory** to `services/worker`
 3. Set **Build Command** to `cd ../.. && npx prisma generate && npm run build -w packages/shared && npm run build -w services/worker`
 4. Set **Start Command** to `npm start -w services/worker`
-5. Add environment variables: `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `COMPOSIO_API_KEY`, `STRIPE_SECRET_KEY`
+5. Add environment variables: `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `COMPOSIO_API_KEY`
 6. Deploy
 
 ### Supabase
@@ -137,12 +134,6 @@ npm run dev -w services/worker
 1. Create a new Upstash Redis database
 2. Enable TLS
 3. Copy the `rediss://` URL to `REDIS_URL`
-
-### Stripe Webhooks
-
-1. In Stripe Dashboard, create a webhook endpoint pointing to `https://your-vercel-domain.com/api/webhooks/stripe`
-2. Select events: `payment_intent.succeeded`, `invoice.paid`, `customer.subscription.created`, etc.
-3. Copy the signing secret to `STRIPE_WEBHOOK_SECRET`
 
 ## API Routes
 
@@ -174,7 +165,6 @@ npm run dev -w services/worker
 | PUT | `/api/skills/[id]/edges` | Update graph edges |
 | GET | `/api/actors` | List actors |
 | POST | `/api/actors/merge` | Merge two actors |
-| POST | `/api/webhooks/stripe` | Stripe webhook receiver |
 | GET | `/api/audit` | Audit logs |
 
 ## Background Jobs
@@ -182,7 +172,7 @@ npm run dev -w services/worker
 | Job | Description | Trigger |
 |---|---|---|
 | `BACKFILL_JOB` | Fetch historical data from integrations | Manual (API) |
-| `NORMALIZE_EVENTS_JOB` | Normalize raw events to universal format | After backfill / webhook |
+| `NORMALIZE_EVENTS_JOB` | Normalize raw events to universal format | After backfill |
 | `WORKFLOW_CLUSTER_JOB` | Detect workflow patterns via clustering | Manual (API) / Nightly |
 | `SKILL_COMPILE_JOB` | Compile cluster into skill graph | Manual (API) |
 | `NIGHTLY_RECOMPUTE_JOB` | Nightly workflow re-detection | Cron (2 AM daily) |
@@ -195,5 +185,4 @@ npm run dev -w services/worker
 - **Queue**: BullMQ on Upstash Redis
 - **Worker**: Node.js on Railway
 - **Auth**: JWT via `jose` (Edge-compatible)
-- **Integrations**: Composio SDK
-- **Payments**: Stripe webhooks
+- **Integrations**: Composio SDK (Slack, GitHub, HubSpot, Jira, Notion, Google Workspace)

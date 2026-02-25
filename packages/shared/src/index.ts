@@ -16,7 +16,7 @@ export {
 
 // ─── Shared types ───
 
-export type Source = 'SLACK' | 'GITHUB' | 'HUBSPOT' | 'JIRA' | 'NOTION' | 'GOOGLE' | 'STRIPE';
+export type Source = 'SLACK' | 'GITHUB' | 'HUBSPOT' | 'JIRA' | 'NOTION' | 'GOOGLE';
 
 export type EntityType =
   | 'message' | 'channel' | 'reaction'
@@ -25,7 +25,6 @@ export type EntityType =
   | 'task' | 'sprint' | 'board'
   | 'page' | 'database' | 'block'
   | 'email' | 'document' | 'calendar_event' | 'file'
-  | 'subscription' | 'invoice' | 'customer' | 'payment'
   | 'unknown';
 
 export interface UniversalEventInput {

@@ -47,7 +47,7 @@ export default function EventsPage() {
       <div className="p-6 space-y-4">
         {/* Filters */}
         <div className="flex gap-2">
-          {['', 'SLACK', 'GITHUB', 'HUBSPOT', 'JIRA', 'NOTION', 'GOOGLE', 'STRIPE'].map((src) => (
+          {['', 'SLACK', 'GITHUB', 'HUBSPOT', 'JIRA', 'NOTION', 'GOOGLE'].map((src) => (
             <button
               key={src}
               onClick={() => setSourceFilter(src)}

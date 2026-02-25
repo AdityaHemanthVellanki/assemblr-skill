@@ -9,12 +9,11 @@ interface ActorHints {
   jiraId?: string;
   notionId?: string;
   googleId?: string;
-  stripeCustomerId?: string;
 }
 
 const SOURCE_FIELD: Record<Source, keyof ActorHints | null> = {
   SLACK: 'slackId', GITHUB: 'githubId', HUBSPOT: 'hubspotId',
-  JIRA: 'jiraId', NOTION: 'notionId', GOOGLE: 'googleId', STRIPE: 'stripeCustomerId',
+  JIRA: 'jiraId', NOTION: 'notionId', GOOGLE: 'googleId',
 };
 
 export async function resolveActor(orgId: string, source: Source, hints: ActorHints): Promise<string | null> {
@@ -92,7 +91,6 @@ export async function mergeActors(orgId: string, primaryId: string, secondaryId:
         jiraId: primary.jiraId || secondary.jiraId,
         notionId: primary.notionId || secondary.notionId,
         googleId: primary.googleId || secondary.googleId,
-        stripeCustomerId: primary.stripeCustomerId || secondary.stripeCustomerId,
       },
     }),
     prisma.universalEvent.updateMany({

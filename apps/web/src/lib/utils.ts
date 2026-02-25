@@ -22,10 +22,10 @@ export function formatRelative(date: string | Date): string {
 
 export const SOURCE_LABELS: Record<string, string> = {
   SLACK: 'Slack', GITHUB: 'GitHub', HUBSPOT: 'HubSpot', JIRA: 'Jira',
-  NOTION: 'Notion', GOOGLE: 'Google Workspace', STRIPE: 'Stripe',
+  NOTION: 'Notion', GOOGLE: 'Google Workspace',
 };
 
 export const SOURCE_COLORS: Record<string, string> = {
   SLACK: '#4a154b', GITHUB: '#24292e', HUBSPOT: '#ff7a59', JIRA: '#0052cc',
-  NOTION: '#000000', GOOGLE: '#4285f4', STRIPE: '#635bff',
+  NOTION: '#000000', GOOGLE: '#4285f4',
 };

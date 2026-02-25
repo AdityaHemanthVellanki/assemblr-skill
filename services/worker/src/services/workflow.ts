@@ -5,12 +5,13 @@ interface SeqItem { source: string; eventType: string }
 interface AnchorConfig { source: string; eventType: string }
 
 const DEFAULT_ANCHORS: AnchorConfig[] = [
-  { source: 'STRIPE', eventType: 'subscription.canceled' },
-  { source: 'STRIPE', eventType: 'subscription.created' },
+  { source: 'JIRA', eventType: 'issue.priority_changed' },
+  { source: 'JIRA', eventType: 'issue.status_changed' },
   { source: 'JIRA', eventType: 'issue.created' },
   { source: 'HUBSPOT', eventType: 'deal.stage_changed' },
   { source: 'GITHUB', eventType: 'release.created' },
   { source: 'GITHUB', eventType: 'pull_request.merged' },
+  { source: 'SLACK', eventType: 'message.sent' },
 ];
 
 const MIN_FREQUENCY = 3;

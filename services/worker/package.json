@@ -11,8 +11,7 @@
     "@assemblr/shared": "*",
     "@prisma/client": "^6.2.0",
     "bullmq": "^5.30.0",
-    "ioredis": "^5.4.0",
-    "stripe": "^17.5.0"
+    "ioredis": "^5.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

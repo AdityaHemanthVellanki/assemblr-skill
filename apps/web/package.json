@@ -28,7 +28,6 @@
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "stripe": "^17.5.0",
     "tailwind-merge": "^2.6.0",
     "zustand": "^5.0.0"
   },

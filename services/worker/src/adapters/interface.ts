@@ -88,14 +88,3 @@ export const GOOGLE_EVENTS: Record<string, { eventType: string; entityType: Enti
   'calendar.event_created': { eventType: 'calendar.event_created', entityType: 'calendar_event' },
   'file.created': { eventType: 'file.created', entityType: 'file' },
 };
-
-export const STRIPE_EVENTS: Record<string, { eventType: string; entityType: EntityType }> = {
-  'customer.subscription.created': { eventType: 'subscription.created', entityType: 'subscription' },
-  'customer.subscription.updated': { eventType: 'subscription.updated', entityType: 'subscription' },
-  'customer.subscription.deleted': { eventType: 'subscription.canceled', entityType: 'subscription' },
-  'invoice.paid': { eventType: 'invoice.paid', entityType: 'invoice' },
-  'invoice.payment_failed': { eventType: 'invoice.payment_failed', entityType: 'invoice' },
-  'customer.created': { eventType: 'customer.created', entityType: 'customer' },
-  'charge.succeeded': { eventType: 'payment.succeeded', entityType: 'payment' },
-  'charge.failed': { eventType: 'payment.failed', entityType: 'payment' },
-};

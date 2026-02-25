@@ -1,9 +1,8 @@
 import { prisma, type NormalizePayload } from '@assemblr/shared';
 import type { Job } from 'bullmq';
-import { normalizeStripeEvent } from '../services/stripe.js';
 
 /**
- * Normalize raw events that were stored via webhook (Stripe) or other non-adapter paths.
+ * Normalize raw events that were stored via webhook or other non-adapter paths.
  * The backfill worker handles adapter-based normalization inline.
  */
 export async function handleNormalize(job: Job<NormalizePayload>) {
@@ -18,28 +17,9 @@ export async function handleNormalize(job: Job<NormalizePayload>) {
     const existing = await prisma.universalEvent.findUnique({ where: { rawEventId: rawId } });
     if (existing) continue;
 
-    let event = null;
-
-    if (raw.source === 'STRIPE') {
-      event = normalizeStripeEvent(orgId, rawId, raw.rawPayload as Record<string, unknown>);
-    }
-
-    if (event) {
-      await prisma.universalEvent.create({
-        data: {
-          orgId: event.orgId,
-          source: event.source as any,
-          eventType: event.eventType,
-          actorId: event.actorId,
-          entityType: event.entityType,
-          entityId: event.entityId,
-          timestamp: event.timestamp,
-          metadata: event.metadata as any,
-          rawEventId: rawId,
-        },
-      });
-      normalized++;
-    }
+    // Future: add source-specific normalization logic here for non-adapter sources.
+    // Adapter-based sources (Slack, GitHub, HubSpot, Jira, Notion, Google) normalize
+    // inline during backfill, so this worker handles edge cases.
   }
 
   return { normalized };

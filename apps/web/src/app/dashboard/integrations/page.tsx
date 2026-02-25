@@ -6,7 +6,7 @@ import { useApi } from '@/hooks/use-api';
 import { api } from '@/lib/api-client';
 import { SOURCE_LABELS, SOURCE_COLORS, formatRelative } from '@/lib/utils';
 
-const ALL_SOURCES = ['SLACK', 'GITHUB', 'HUBSPOT', 'JIRA', 'NOTION', 'GOOGLE', 'STRIPE'];
+const ALL_SOURCES = ['SLACK', 'GITHUB', 'HUBSPOT', 'JIRA', 'NOTION', 'GOOGLE'];
 
 export default function IntegrationsPage() {
   const { data: integrations, refetch } = useApi<any[]>('/integrations');
