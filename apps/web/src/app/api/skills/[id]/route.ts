@@ -10,7 +10,7 @@ export const GET = handler(async (_req, { params }: { params: Promise<{ id: stri
     where: { id, orgId: s.orgId },
     include: {
       versions: { orderBy: { version: 'desc' } },
-      cluster: { select: { id: true, anchorEventType: true, eventSequence: true, confidence: true } },
+      cluster: { select: { id: true, anchorEventType: true, eventSequence: true, confidenceScore: true } },
     },
   });
 

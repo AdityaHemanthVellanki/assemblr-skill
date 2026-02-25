@@ -17,18 +17,20 @@ export const POST = handler(async (req) => {
 
   if (!primary || !secondary) return error('Actor not found', 404, 'NOT_FOUND');
 
-  // Merge: move events from secondary to primary, merge sourceIds, delete secondary
+  // Merge: move events from secondary to primary, merge source IDs, delete secondary
   const merged = await prisma.$transaction(async (tx) => {
-    // Merge sourceIds
-    const mergedSourceIds = { ...(primary.sourceIds as any || {}), ...(secondary.sourceIds as any || {}) };
-
-    // Update primary with merged data
+    // Update primary with merged data (prefer primary's values, fill from secondary)
     const updated = await tx.orgActor.update({
       where: { id: primaryId },
       data: {
-        sourceIds: mergedSourceIds,
         primaryEmail: primary.primaryEmail || secondary.primaryEmail,
         displayName: primary.displayName || secondary.displayName,
+        slackId: primary.slackId || secondary.slackId,
+        githubId: primary.githubId || secondary.githubId,
+        hubspotId: primary.hubspotId || secondary.hubspotId,
+        jiraId: primary.jiraId || secondary.jiraId,
+        notionId: primary.notionId || secondary.notionId,
+        googleId: primary.googleId || secondary.googleId,
       },
     });
 

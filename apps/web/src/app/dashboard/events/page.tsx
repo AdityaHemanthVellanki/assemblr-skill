@@ -3,13 +3,16 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Header } from '@/components/layout/header';
 import { api } from '@/lib/api-client';
-import { SOURCE_LABELS, formatRelative } from '@/lib/utils';
+import { SOURCE_LABELS, SOURCE_COLORS, formatRelative } from '@/lib/utils';
+import { Activity, Loader2 } from 'lucide-react';
 
 interface EventData {
   data: any[];
   nextCursor: string | null;
   hasMore: boolean;
 }
+
+const FILTERS = ['', 'SLACK', 'GITHUB', 'HUBSPOT', 'JIRA', 'NOTION', 'GOOGLE'];
 
 export default function EventsPage() {
   const [events, setEvents] = useState<any[]>([]);
@@ -42,65 +45,99 @@ export default function EventsPage() {
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
   return (
-    <div>
+    <div className="page-enter">
       <Header title="Events" />
-      <div className="p-6 space-y-4">
+      <div className="p-8 space-y-5">
         {/* Filters */}
-        <div className="flex gap-2">
-          {['', 'SLACK', 'GITHUB', 'HUBSPOT', 'JIRA', 'NOTION', 'GOOGLE'].map((src) => (
-            <button
-              key={src}
-              onClick={() => setSourceFilter(src)}
-              className="px-3 py-1.5 rounded text-xs font-medium transition"
-              style={{
-                background: sourceFilter === src ? 'var(--primary)' : 'var(--muted)',
-                color: sourceFilter === src ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
-              }}
-            >
-              {src ? SOURCE_LABELS[src] || src : 'All'}
-            </button>
-          ))}
+        <div className="flex gap-1.5 flex-wrap">
+          {FILTERS.map((src) => {
+            const active = sourceFilter === src;
+            const color = SOURCE_COLORS[src];
+            return (
+              <button
+                key={src}
+                onClick={() => setSourceFilter(src)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150"
+                style={{
+                  background: active ? (color ? `color-mix(in srgb, ${color} 15%, transparent)` : 'var(--accent-muted)') : 'var(--bg-surface)',
+                  color: active ? (color || 'var(--accent)') : 'var(--fg-muted)',
+                  border: `1px solid ${active ? (color ? `color-mix(in srgb, ${color} 30%, transparent)` : 'var(--accent)') : 'var(--border)'}`,
+                }}
+              >
+                {src ? SOURCE_LABELS[src] || src : 'All'}
+              </button>
+            );
+          })}
         </div>
 
         {/* Events list */}
-        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        >
           {events.length === 0 && !loading && (
-            <div className="p-8 text-center text-sm" style={{ color: 'var(--muted-foreground)' }}>
-              No events found. Connect an integration and run a backfill.
+            <div className="empty-state" style={{ padding: '48px 24px' }}>
+              <div className="empty-icon">
+                <Activity size={22} />
+              </div>
+              <div className="empty-title">No events found</div>
+              <div className="empty-description">
+                Connect an integration and run a backfill to see events here.
+              </div>
             </div>
           )}
           {events.map((event, i) => (
             <div
               key={event.id}
-              className="flex items-center gap-4 px-4 py-3 text-sm"
-              style={{ borderTop: i > 0 ? '1px solid var(--border)' : 'none' }}
+              className="list-row"
             >
+              {/* Source badge */}
               <span
-                className="shrink-0 text-xs px-2 py-0.5 rounded"
-                style={{ background: 'var(--muted)' }}
+                className="shrink-0 text-[11px] font-medium px-2.5 py-1 rounded-md"
+                style={{
+                  background: `color-mix(in srgb, ${SOURCE_COLORS[event.source] || '#888'} 12%, transparent)`,
+                  color: SOURCE_COLORS[event.source] || 'var(--fg-muted)',
+                }}
               >
                 {SOURCE_LABELS[event.source] || event.source}
               </span>
-              <span className="font-mono text-xs flex-1 truncate">{event.eventType}</span>
-              <span className="text-xs shrink-0" style={{ color: 'var(--muted-foreground)' }}>
+
+              {/* Event type */}
+              <span className="font-mono text-xs flex-1 truncate" style={{ color: 'var(--fg-secondary)' }}>
+                {event.eventType}
+              </span>
+
+              {/* Actor */}
+              <span className="text-xs shrink-0" style={{ color: 'var(--fg-muted)' }}>
                 {event.actor?.displayName || event.actor?.primaryEmail || '—'}
               </span>
-              <span className="text-xs shrink-0" style={{ color: 'var(--muted-foreground)' }}>
+
+              {/* Time */}
+              <span
+                className="text-[11px] shrink-0 font-mono"
+                style={{ color: 'var(--fg-faint)', minWidth: 60, textAlign: 'right' }}
+              >
                 {formatRelative(event.timestamp)}
               </span>
             </div>
           ))}
         </div>
 
+        {/* Load more */}
         {hasMore && (
-          <button
-            onClick={() => cursor && fetchEvents(cursor)}
-            disabled={loading}
-            className="px-4 py-2 rounded text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
-            style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
-          >
-            {loading ? 'Loading...' : 'Load More'}
-          </button>
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={() => cursor && fetchEvents(cursor)}
+              disabled={loading}
+              className="btn btn-secondary"
+            >
+              {loading ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                'Load More'
+              )}
+            </button>
+          </div>
         )}
       </div>
     </div>

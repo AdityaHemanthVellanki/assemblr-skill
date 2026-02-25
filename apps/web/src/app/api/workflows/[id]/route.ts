@@ -10,7 +10,7 @@ export const GET = handler(async (_req, { params }: { params: Promise<{ id: stri
     where: { id, orgId: s.orgId },
     include: {
       instances: {
-        orderBy: { detectedAt: 'desc' },
+        orderBy: { createdAt: 'desc' },
         take: 20,
       },
     },

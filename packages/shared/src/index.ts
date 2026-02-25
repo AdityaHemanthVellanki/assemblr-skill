@@ -1,5 +1,5 @@
-export { prisma } from './db.js';
-export type { PrismaClient } from './db.js';
+export { prisma } from './db';
+export type { PrismaClient } from './db';
 
 export {
   QUEUE_NAME,
@@ -12,7 +12,7 @@ export {
   type WorkflowClusterPayload,
   type SkillCompilePayload,
   type NightlyPayload,
-} from './queue.js';
+} from './queue';
 
 // ─── Shared types ───
 

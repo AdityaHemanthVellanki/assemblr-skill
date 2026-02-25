@@ -9,6 +9,10 @@ export const POST = handler(async (req) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return error('Invalid credentials', 401, 'UNAUTHORIZED');
 
+  if (!user.passwordHash) {
+    return error('This account uses Google sign-in', 400, 'OAUTH_ACCOUNT');
+  }
+
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) return error('Invalid credentials', 401, 'UNAUTHORIZED');
 

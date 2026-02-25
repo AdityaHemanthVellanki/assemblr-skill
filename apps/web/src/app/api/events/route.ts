@@ -6,7 +6,7 @@ export const GET = handler(async (req) => {
   const s = await requireSession();
   const url = new URL(req.url);
 
-  const source = url.searchParams.get('source') || undefined;
+  const source = (url.searchParams.get('source') || undefined) as any;
   const eventType = url.searchParams.get('eventType') || undefined;
   const actorId = url.searchParams.get('actorId') || undefined;
   const cursor = url.searchParams.get('cursor') || undefined;

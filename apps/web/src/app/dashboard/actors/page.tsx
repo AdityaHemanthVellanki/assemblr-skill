@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/header';
 import { useApi } from '@/hooks/use-api';
 import { api } from '@/lib/api-client';
 import { formatRelative } from '@/lib/utils';
+import { Users, Search, Merge, Loader2, Check } from 'lucide-react';
 
 export default function ActorsPage() {
   const [search, setSearch] = useState('');
@@ -33,69 +34,125 @@ export default function ActorsPage() {
     );
   }
 
+  const AVATAR_COLORS = [
+    '#7c5cfc', '#e01e5a', '#2684ff', '#ff7a59', '#22c55e', '#f59e0b',
+    '#8b5cf6', '#06b6d4', '#ec4899', '#14b8a6',
+  ];
+
+  function getAvatarColor(name: string) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  }
+
   return (
-    <div>
-      <Header title="Actors" />
-      <div className="p-6 space-y-4">
-        <div className="flex items-center gap-3">
+    <div className="page-enter">
+      <Header title="Actors">
+        {mergeIds.length === 2 && (
+          <button
+            onClick={handleMerge}
+            disabled={merging}
+            className="btn btn-primary btn-sm"
+          >
+            {merging ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <>
+                <Merge size={14} />
+                Merge Selected
+              </>
+            )}
+          </button>
+        )}
+      </Header>
+      <div className="p-8 space-y-5">
+        {/* Search */}
+        <div className="relative max-w-md">
+          <Search
+            size={16}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2"
+            style={{ color: 'var(--fg-muted)' }}
+          />
           <input
             type="text"
-            placeholder="Search actors..."
+            placeholder="Search actors by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-3 py-2 rounded-lg text-sm flex-1 outline-none"
-            style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
+            className="input"
+            style={{ paddingLeft: 40 }}
           />
-          {mergeIds.length === 2 && (
-            <button
-              onClick={handleMerge}
-              disabled={merging}
-              className="px-4 py-2 rounded text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
-              style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}
-            >
-              {merging ? 'Merging...' : 'Merge Selected'}
-            </button>
-          )}
         </div>
 
-        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        {mergeIds.length > 0 && (
+          <div className="text-xs" style={{ color: 'var(--fg-muted)' }}>
+            {mergeIds.length}/2 actors selected for merge. Click actors to select.
+          </div>
+        )}
+
+        {/* Actors list */}
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        >
           {(!data?.data || data.data.length === 0) && (
-            <div className="p-8 text-center text-sm" style={{ color: 'var(--muted-foreground)' }}>
-              No actors found. Actors are created from identity resolution during event processing.
+            <div className="empty-state">
+              <div className="empty-icon">
+                <Users size={22} />
+              </div>
+              <div className="empty-title">No actors found</div>
+              <div className="empty-description">
+                Actors are created from identity resolution during event processing.
+              </div>
             </div>
           )}
-          {data?.data?.map((actor: any, i: number) => (
-            <div
-              key={actor.id}
-              className="flex items-center gap-4 px-4 py-3 text-sm cursor-pointer hover:opacity-80 transition"
-              style={{
-                borderTop: i > 0 ? '1px solid var(--border)' : 'none',
-                background: mergeIds.includes(actor.id) ? 'var(--accent)' : 'transparent',
-              }}
-              onClick={() => toggleSelect(actor.id)}
-            >
+          {data?.data?.map((actor: any) => {
+            const selected = mergeIds.includes(actor.id);
+            const displayChar = (actor.displayName || actor.primaryEmail || '?')[0].toUpperCase();
+            const avatarColor = getAvatarColor(actor.displayName || actor.primaryEmail || '?');
+
+            return (
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
-                style={{ background: 'var(--muted)' }}
+                key={actor.id}
+                className="list-row cursor-pointer transition-all duration-150"
+                style={{
+                  background: selected ? 'var(--accent-muted)' : 'transparent',
+                  borderLeft: selected ? '3px solid var(--accent)' : '3px solid transparent',
+                }}
+                onClick={() => toggleSelect(actor.id)}
               >
-                {(actor.displayName || actor.primaryEmail || '?')[0].toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">
-                  {actor.displayName || 'Unknown'}
+                {/* Avatar */}
+                <div
+                  className="avatar avatar-md"
+                  style={{
+                    background: `color-mix(in srgb, ${avatarColor} 15%, transparent)`,
+                    color: avatarColor,
+                  }}
+                >
+                  {selected ? <Check size={16} /> : displayChar}
                 </div>
-                <div className="text-xs truncate" style={{ color: 'var(--muted-foreground)' }}>
-                  {actor.primaryEmail || '—'}
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm truncate" style={{ color: 'var(--fg)' }}>
+                    {actor.displayName || 'Unknown'}
+                  </div>
+                  <div className="text-xs truncate mt-0.5" style={{ color: 'var(--fg-muted)' }}>
+                    {actor.primaryEmail || '—'}
+                  </div>
                 </div>
+
+                {/* Sources */}
+                <span className="badge badge-default shrink-0">
+                  {[actor.slackId, actor.githubId, actor.hubspotId, actor.jiraId, actor.notionId, actor.googleId].filter(Boolean).length} sources
+                </span>
+
+                {/* Time */}
+                <span className="text-[11px] font-mono shrink-0" style={{ color: 'var(--fg-faint)', minWidth: 56 }}>
+                  {formatRelative(actor.updatedAt)}
+                </span>
               </div>
-              <div className="text-xs shrink-0" style={{ color: 'var(--muted-foreground)' }}>
-                {Object.keys(actor.sourceIds || {}).length} sources
-              </div>
-              <div className="text-xs shrink-0" style={{ color: 'var(--muted-foreground)' }}>
-                {formatRelative(actor.updatedAt)}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

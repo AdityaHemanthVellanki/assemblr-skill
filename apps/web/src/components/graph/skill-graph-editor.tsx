@@ -18,6 +18,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { TriggerNode } from './trigger-node';
 import { SkillNode } from './skill-node';
+import { Cpu } from 'lucide-react';
 
 interface SkillGraphEditorProps {
   nodes: any[];
@@ -48,8 +49,9 @@ function toFlowEdges(raw: any[]): Edge[] {
     source: e.source,
     target: e.target,
     animated: true,
-    style: { stroke: 'var(--muted-foreground)', strokeWidth: 1.5 },
+    style: { stroke: 'var(--fg-faint)', strokeWidth: 2 },
     label: e.label || e.condition || '',
+    labelStyle: { fill: 'var(--fg-muted)', fontSize: 10 },
   }));
 }
 
@@ -68,7 +70,7 @@ export function SkillGraphEditor({ nodes: rawNodes, edges: rawEdges, onNodesChan
   const onConnect = useCallback(
     (connection: Connection) => {
       setEdges((eds) => {
-        const newEdges = addEdge({ ...connection, animated: true, style: { stroke: 'var(--muted-foreground)', strokeWidth: 1.5 } }, eds);
+        const newEdges = addEdge({ ...connection, animated: true, style: { stroke: 'var(--fg-faint)', strokeWidth: 2 } }, eds);
         onEdgesSave?.(newEdges);
         return newEdges;
       });
@@ -84,10 +86,19 @@ export function SkillGraphEditor({ nodes: rawNodes, edges: rawEdges, onNodesChan
 
   if (!rawNodes?.length && !rawEdges?.length) {
     return (
-      <div className="flex items-center justify-center h-full" style={{ background: 'var(--muted)' }}>
-        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-          No graph data yet. Compile a workflow to generate the skill graph.
-        </p>
+      <div
+        className="flex items-center justify-center h-full"
+        style={{ background: 'var(--bg)' }}
+      >
+        <div className="empty-state">
+          <div className="empty-icon">
+            <Cpu size={22} />
+          </div>
+          <div className="empty-title">No graph data</div>
+          <div className="empty-description">
+            Compile a workflow to generate the skill graph visualization.
+          </div>
+        </div>
       </div>
     );
   }
@@ -103,12 +114,19 @@ export function SkillGraphEditor({ nodes: rawNodes, edges: rawEdges, onNodesChan
       nodeTypes={nodeTypes}
       fitView
       proOptions={{ hideAttribution: true }}
+      style={{ background: 'var(--bg)' }}
     >
-      <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+      <Background
+        variant={BackgroundVariant.Dots}
+        gap={24}
+        size={1}
+        color="var(--fg-faint)"
+      />
       <Controls />
       <MiniMap
         nodeStrokeWidth={2}
-        style={{ background: 'var(--muted)' }}
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        maskColor="rgba(0, 0, 0, 0.6)"
       />
     </ReactFlow>
   );

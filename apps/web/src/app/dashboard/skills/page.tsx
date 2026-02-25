@@ -4,55 +4,82 @@ import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { useApi } from '@/hooks/use-api';
 import { formatRelative } from '@/lib/utils';
+import { Cpu, Layers, Clock, ArrowUpRight } from 'lucide-react';
 
 export default function SkillsPage() {
   const { data } = useApi<any>('/skills');
 
   return (
-    <div>
+    <div className="page-enter">
       <Header title="Skills" />
-      <div className="p-6 space-y-4">
-        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+      <div className="p-8 space-y-5">
+        <p className="text-sm" style={{ color: 'var(--fg-muted)' }}>
           Compiled skill graphs from detected workflow patterns.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {(!data?.data || data.data.length === 0) && (
             <div
-              className="col-span-full p-8 text-center text-sm rounded-lg"
-              style={{ color: 'var(--muted-foreground)', border: '1px solid var(--border)' }}
+              className="col-span-full rounded-xl"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
             >
-              No skills compiled yet. Detect workflows first, then compile them into skills.
+              <div className="empty-state">
+                <div className="empty-icon">
+                  <Cpu size={22} />
+                </div>
+                <div className="empty-title">No skills compiled</div>
+                <div className="empty-description">
+                  Detect workflows first, then compile them into executable skill graphs.
+                </div>
+              </div>
             </div>
           )}
           {data?.data?.map((skill: any) => (
             <Link
               key={skill.id}
               href={`/dashboard/skills/${skill.id}`}
-              className="p-4 rounded-lg hover:opacity-80 transition block"
-              style={{ border: '1px solid var(--border)' }}
+              className="card card-interactive card-glow block"
+              style={{ textDecoration: 'none', color: 'inherit' }}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-sm truncate">{skill.name}</span>
-                <span
-                  className="text-xs px-2 py-0.5 rounded-full shrink-0"
-                  style={{
-                    background: skill.status === 'ACTIVE' ? '#dcfce7' : 'var(--muted)',
-                    color: skill.status === 'ACTIVE' ? '#166534' : 'var(--muted-foreground)',
-                  }}
-                >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: 'var(--accent-muted)', color: 'var(--accent)' }}
+                  >
+                    <Cpu size={15} />
+                  </div>
+                  <span className="font-medium text-sm truncate" style={{ color: 'var(--fg)' }}>
+                    {skill.name}
+                  </span>
+                </div>
+                <span className={`badge badge-dot ${skill.status === 'ACTIVE' ? 'badge-success' : 'badge-default'}`}>
                   {skill.status}
                 </span>
               </div>
+
+              {/* Description */}
               {skill.description && (
-                <p className="text-xs mb-2 line-clamp-2" style={{ color: 'var(--muted-foreground)' }}>
+                <p className="text-xs mb-3 line-clamp-2" style={{ color: 'var(--fg-muted)', lineHeight: 1.5 }}>
                   {skill.description}
                 </p>
               )}
-              <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                <span>v{skill.versions?.[0]?.version || 1}</span>
+
+              {/* Footer */}
+              <div
+                className="flex items-center gap-3 text-[11px] pt-3"
+                style={{ color: 'var(--fg-faint)', borderTop: '1px solid var(--border-subtle)' }}
+              >
+                <span className="flex items-center gap-1">
+                  <Layers size={12} />
+                  v{skill.versions?.[0]?.version || 1}
+                </span>
                 <span>{skill._count?.versions || 0} versions</span>
-                <span>{formatRelative(skill.updatedAt)}</span>
+                <span className="flex items-center gap-1 ml-auto">
+                  <Clock size={12} />
+                  {formatRelative(skill.updatedAt)}
+                </span>
               </div>
             </Link>
           ))}

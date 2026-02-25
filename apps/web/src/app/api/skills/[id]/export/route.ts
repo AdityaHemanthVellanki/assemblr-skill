@@ -26,15 +26,15 @@ export const GET = handler(async (req, { params }: { params: Promise<{ id: strin
 
   if (!version) return error('No version found', 404, 'NOT_FOUND');
 
-  const exportData: SkillGraphExport = {
+  const exportData = {
     skillId: skill.id,
     name: skill.name,
     version: version.version,
-    trigger: version.trigger as any,
-    nodes: version.nodes as any[],
-    edges: version.edges as any[],
-    conditions: version.conditions as any,
-    metadata: version.metadata as any,
+    trigger: version.trigger,
+    nodes: version.nodes,
+    edges: version.edges,
+    conditions: version.conditions,
+    metadata: version.metadata,
     exportedAt: new Date().toISOString(),
   };
 

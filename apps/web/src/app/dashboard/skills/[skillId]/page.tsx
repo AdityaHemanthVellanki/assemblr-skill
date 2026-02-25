@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/header';
 import { useApi } from '@/hooks/use-api';
 import { api } from '@/lib/api-client';
 import { SkillGraphEditor } from '@/components/graph/skill-graph-editor';
+import { Pencil, Plus, Download, Trash2, X, Save, Loader2, Layers, Target, ArrowRight } from 'lucide-react';
 
 export default function SkillDetailPage() {
   const { skillId } = useParams<{ skillId: string }>();
@@ -66,97 +67,101 @@ export default function SkillDetailPage() {
 
   if (!skill) {
     return (
-      <div>
+      <div className="page-enter">
         <Header title="Skill" />
-        <div className="p-6 text-sm" style={{ color: 'var(--muted-foreground)' }}>Loading...</div>
+        <div className="flex items-center justify-center p-12">
+          <Loader2 size={20} className="animate-spin" style={{ color: 'var(--accent)' }} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <Header title={skill.name} />
-      <div className="p-6 space-y-4 shrink-0">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span
-            className="text-xs px-2 py-0.5 rounded-full"
-            style={{
-              background: skill.status === 'ACTIVE' ? '#dcfce7' : 'var(--muted)',
-              color: skill.status === 'ACTIVE' ? '#166534' : 'var(--muted-foreground)',
-            }}
-          >
-            {skill.status}
-          </span>
-          <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-            v{latestVersion?.version || 1} · {skill.versions?.length || 0} versions
-          </span>
-
-          <div className="flex-1" />
-
+    <div className="flex flex-col h-full page-enter">
+      <Header title={skill.name}>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => { setName(skill.name); setDescription(skill.description || ''); setEditing(true); }}
-            className="px-3 py-1.5 rounded text-xs font-medium"
-            style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
+            className="btn btn-secondary btn-sm"
           >
+            <Pencil size={13} />
             Edit
           </button>
-          <button
-            onClick={handleNewVersion}
-            className="px-3 py-1.5 rounded text-xs font-medium"
-            style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
-          >
+          <button onClick={handleNewVersion} className="btn btn-secondary btn-sm">
+            <Plus size={13} />
             New Version
           </button>
-          <button
-            onClick={handleExport}
-            className="px-3 py-1.5 rounded text-xs font-medium"
-            style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
-          >
-            Export JSON
+          <button onClick={handleExport} className="btn btn-secondary btn-sm">
+            <Download size={13} />
+            Export
           </button>
-          <button
-            onClick={handleDelete}
-            className="px-3 py-1.5 rounded text-xs font-medium text-red-500"
-            style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
-          >
-            Delete
+          <button onClick={handleDelete} className="btn btn-danger btn-sm">
+            <Trash2 size={13} />
           </button>
         </div>
+      </Header>
 
+      <div className="px-8 py-5 shrink-0 space-y-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        {/* Status + version info */}
+        <div className="flex items-center gap-3">
+          <span className={`badge badge-dot ${skill.status === 'ACTIVE' ? 'badge-success' : 'badge-default'}`}>
+            {skill.status}
+          </span>
+          <span className="badge badge-default">
+            <Layers size={11} />
+            v{latestVersion?.version || 1}
+          </span>
+          <span className="text-xs" style={{ color: 'var(--fg-muted)' }}>
+            {skill.versions?.length || 0} versions
+          </span>
+        </div>
+
+        {/* Edit form */}
         {editing && (
-          <div className="flex gap-3 items-end">
-            <div className="flex-1 space-y-2">
-              <input
-                type="text" value={name} onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 rounded text-sm outline-none"
-                style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
-              />
-              <input
-                type="text" value={description} onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description"
-                className="w-full px-3 py-2 rounded text-sm outline-none"
-                style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
-              />
+          <div
+            className="p-4 rounded-xl animate-scale-in space-y-3"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+          >
+            <input
+              type="text" value={name} onChange={(e) => setName(e.target.value)}
+              className="input"
+              placeholder="Skill name"
+            />
+            <input
+              type="text" value={description} onChange={(e) => setDescription(e.target.value)}
+              placeholder="Description"
+              className="input"
+            />
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setEditing(false)} className="btn btn-ghost btn-sm">
+                <X size={14} />
+                Cancel
+              </button>
+              <button onClick={handleSave} className="btn btn-primary btn-sm">
+                <Save size={14} />
+                Save
+              </button>
             </div>
-            <button
-              onClick={handleSave}
-              className="px-4 py-2 rounded text-sm font-medium"
-              style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}
-            >
-              Save
-            </button>
-            <button onClick={() => setEditing(false)} className="px-4 py-2 rounded text-sm"
-              style={{ background: 'var(--muted)' }}>
-              Cancel
-            </button>
           </div>
         )}
 
+        {/* Cluster info */}
         {skill.cluster && (
-          <div className="text-xs space-y-1" style={{ color: 'var(--muted-foreground)' }}>
-            <div>Anchor: <span className="font-mono">{skill.cluster.anchorEventType}</span></div>
-            <div>Sequence: <span className="font-mono">{(skill.cluster.eventSequence || []).join(' → ')}</span></div>
-            <div>Confidence: {(skill.cluster.confidence * 100).toFixed(0)}%</div>
+          <div
+            className="flex items-center gap-6 text-xs px-4 py-3 rounded-lg"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}
+          >
+            <div className="flex items-center gap-1.5" style={{ color: 'var(--fg-muted)' }}>
+              <Target size={12} style={{ color: 'var(--accent)' }} />
+              <span className="font-mono">{skill.cluster.anchorEventType}</span>
+            </div>
+            <div className="flex items-center gap-1.5" style={{ color: 'var(--fg-muted)' }}>
+              <ArrowRight size={12} />
+              <span className="font-mono">{(skill.cluster.eventSequence || []).join(' → ')}</span>
+            </div>
+            <span className="badge badge-accent ml-auto">
+              {(skill.cluster.confidenceScore * 100).toFixed(0)}% confidence
+            </span>
           </div>
         )}
       </div>

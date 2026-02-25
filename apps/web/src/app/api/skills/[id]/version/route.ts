@@ -21,11 +21,11 @@ export const POST = handler(async (_req, { params }: { params: Promise<{ id: str
     data: {
       skillId: id,
       version: latestVersion.version + 1,
-      trigger: latestVersion.trigger || undefined,
-      nodes: latestVersion.nodes || undefined,
-      edges: latestVersion.edges || undefined,
-      conditions: latestVersion.conditions || undefined,
-      metadata: latestVersion.metadata || undefined,
+      trigger: (latestVersion.trigger ?? {}) as any,
+      nodes: (latestVersion.nodes ?? []) as any,
+      edges: (latestVersion.edges ?? []) as any,
+      conditions: (latestVersion.conditions ?? []) as any,
+      metadata: (latestVersion.metadata ?? {}) as any,
     },
   });
 

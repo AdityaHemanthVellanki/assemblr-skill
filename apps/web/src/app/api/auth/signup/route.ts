@@ -4,17 +4,23 @@ import { signToken } from '@/lib/auth';
 import { handler, created, error } from '@/lib/api-utils';
 
 export const POST = handler(async (req) => {
-  const { email, password, name, orgName, orgSlug } = await req.json();
+  const { email, password, name, orgName } = await req.json();
 
-  if (!email || !password || !name || !orgName || !orgSlug) {
+  if (!email || !password || !name || !orgName) {
     return error('Missing required fields', 400);
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return error('Email already registered', 409, 'CONFLICT');
 
-  const existingOrg = await prisma.organization.findUnique({ where: { slug: orgSlug } });
-  if (existingOrg) return error('Org slug already taken', 409, 'CONFLICT');
+  // Auto-generate slug from org name
+  const baseSlug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  let orgSlug = baseSlug;
+  let suffix = 0;
+  while (await prisma.organization.findUnique({ where: { slug: orgSlug } })) {
+    suffix++;
+    orgSlug = `${baseSlug}-${suffix}`;
+  }
 
   const passwordHash = await bcrypt.hash(password, 12);
 
