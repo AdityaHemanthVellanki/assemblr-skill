@@ -51,7 +51,7 @@ function toFlowEdges(raw: any[]): Edge[] {
     animated: true,
     style: { stroke: 'var(--fg-faint)', strokeWidth: 2 },
     label: e.label || e.condition || '',
-    labelStyle: { fill: 'var(--fg-muted)', fontSize: 10 },
+    labelStyle: { fill: 'var(--muted-foreground)', fontSize: 10 },
   }));
 }
 
@@ -86,16 +86,16 @@ export function SkillGraphEditor({ nodes: rawNodes, edges: rawEdges, onNodesChan
 
   if (!rawNodes?.length && !rawEdges?.length) {
     return (
-      <div
-        className="flex items-center justify-center h-full"
-        style={{ background: 'var(--bg)' }}
-      >
-        <div className="empty-state">
-          <div className="empty-icon">
+      <div className="flex items-center justify-center h-full bg-background">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center"
+            style={{ background: 'var(--accent-brand-muted)', color: 'var(--accent-brand)' }}
+          >
             <Cpu size={22} />
           </div>
-          <div className="empty-title">No graph data</div>
-          <div className="empty-description">
+          <div className="text-sm font-medium text-foreground">No graph data</div>
+          <div className="text-xs text-muted-foreground max-w-[240px]">
             Compile a workflow to generate the skill graph visualization.
           </div>
         </div>
@@ -114,7 +114,7 @@ export function SkillGraphEditor({ nodes: rawNodes, edges: rawEdges, onNodesChan
       nodeTypes={nodeTypes}
       fitView
       proOptions={{ hideAttribution: true }}
-      style={{ background: 'var(--bg)' }}
+      style={{ background: 'var(--background)' }}
     >
       <Background
         variant={BackgroundVariant.Dots}
@@ -125,7 +125,7 @@ export function SkillGraphEditor({ nodes: rawNodes, edges: rawEdges, onNodesChan
       <Controls />
       <MiniMap
         nodeStrokeWidth={2}
-        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
         maskColor="rgba(0, 0, 0, 0.6)"
       />
     </ReactFlow>

@@ -1,10 +1,16 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Header } from '@/components/layout/header';
+import { PageHeader } from '@/components/page-header';
 import { api } from '@/lib/api-client';
 import { SOURCE_LABELS, SOURCE_COLORS, formatRelative } from '@/lib/utils';
+import { EmptyState } from '@/components/empty-state';
+import { SourceBadge } from '@/components/source-badge';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Activity, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface EventData {
   data: any[];
@@ -45,98 +51,83 @@ export default function EventsPage() {
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
   return (
-    <div className="page-enter">
-      <Header title="Events" />
-      <div className="p-8 space-y-5">
-        {/* Filters */}
-        <div className="flex gap-1.5 flex-wrap">
+    <div>
+      <PageHeader title="Events" />
+      <div className="p-10 space-y-5">
+        {/* Filter pills */}
+        <div className="flex gap-2 flex-wrap">
           {FILTERS.map((src) => {
             const active = sourceFilter === src;
             const color = SOURCE_COLORS[src];
             return (
-              <button
-                key={src}
+              <Button
+                key={src || 'all'}
+                variant={active ? 'default' : 'outline'}
+                size="sm"
                 onClick={() => setSourceFilter(src)}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150"
-                style={{
-                  background: active ? (color ? `color-mix(in srgb, ${color} 15%, transparent)` : 'var(--accent-muted)') : 'var(--bg-surface)',
-                  color: active ? (color || 'var(--accent)') : 'var(--fg-muted)',
-                  border: `1px solid ${active ? (color ? `color-mix(in srgb, ${color} 30%, transparent)` : 'var(--accent)') : 'var(--border)'}`,
-                }}
+                className={cn(
+                  'rounded-full text-xs',
+                  active && color && 'border-transparent',
+                )}
+                style={active && color ? {
+                  background: `color-mix(in srgb, ${color} 15%, transparent)`,
+                  color,
+                  borderColor: `color-mix(in srgb, ${color} 30%, transparent)`,
+                } : undefined}
               >
                 {src ? SOURCE_LABELS[src] || src : 'All'}
-              </button>
+              </Button>
             );
           })}
         </div>
 
         {/* Events list */}
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
-        >
+        <Card className="p-0 gap-0 overflow-hidden">
           {events.length === 0 && !loading && (
-            <div className="empty-state" style={{ padding: '48px 24px' }}>
-              <div className="empty-icon">
-                <Activity size={22} />
-              </div>
-              <div className="empty-title">No events found</div>
-              <div className="empty-description">
-                Connect an integration and run a backfill to see events here.
-              </div>
+            <EmptyState
+              icon={Activity}
+              title="No events found"
+              description="Connect an integration and run a backfill to see events here."
+            />
+          )}
+
+          {loading && events.length === 0 && (
+            <div className="p-2 space-y-1">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4 px-4 py-3">
+                  <Skeleton className="h-5 w-16 rounded-md" />
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              ))}
             </div>
           )}
-          {events.map((event, i) => (
+
+          {events.map((event) => (
             <div
               key={event.id}
-              className="list-row"
+              className="flex items-center gap-4 px-6 py-3.5 border-b border-border/50 last:border-b-0 hover:bg-muted/50 transition-colors"
             >
-              {/* Source badge */}
-              <span
-                className="shrink-0 text-[11px] font-medium px-2.5 py-1 rounded-md"
-                style={{
-                  background: `color-mix(in srgb, ${SOURCE_COLORS[event.source] || '#888'} 12%, transparent)`,
-                  color: SOURCE_COLORS[event.source] || 'var(--fg-muted)',
-                }}
-              >
-                {SOURCE_LABELS[event.source] || event.source}
-              </span>
-
-              {/* Event type */}
-              <span className="font-mono text-xs flex-1 truncate" style={{ color: 'var(--fg-secondary)' }}>
+              <SourceBadge source={event.source} />
+              <span className="font-mono text-xs flex-1 truncate text-muted-foreground">
                 {event.eventType}
               </span>
-
-              {/* Actor */}
-              <span className="text-xs shrink-0" style={{ color: 'var(--fg-muted)' }}>
+              <span className="text-xs shrink-0 text-muted-foreground">
                 {event.actor?.displayName || event.actor?.primaryEmail || '—'}
               </span>
-
-              {/* Time */}
-              <span
-                className="text-[11px] shrink-0 font-mono"
-                style={{ color: 'var(--fg-faint)', minWidth: 60, textAlign: 'right' }}
-              >
+              <span className="text-[11px] shrink-0 font-mono text-muted-foreground/60 min-w-[60px] text-right">
                 {formatRelative(event.timestamp)}
               </span>
             </div>
           ))}
-        </div>
+        </Card>
 
-        {/* Load more */}
         {hasMore && (
           <div className="flex justify-center pt-2">
-            <button
-              onClick={() => cursor && fetchEvents(cursor)}
-              disabled={loading}
-              className="btn btn-secondary"
-            >
-              {loading ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                'Load More'
-              )}
-            </button>
+            <Button onClick={() => cursor && fetchEvents(cursor)} disabled={loading} variant="secondary">
+              {loading ? <Loader2 size={14} className="animate-spin" /> : 'Load More'}
+            </Button>
           </div>
         )}
       </div>

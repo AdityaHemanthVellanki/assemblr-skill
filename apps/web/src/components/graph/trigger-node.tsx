@@ -13,7 +13,7 @@ export function TriggerNode({ data }: NodeProps) {
     <div
       className="px-4 py-3 rounded-xl min-w-[200px] relative"
       style={{
-        background: 'var(--bg-surface)',
+        background: 'var(--card)',
         border: `2px solid ${color}`,
         boxShadow: `0 0 16px color-mix(in srgb, ${color} 20%, transparent), var(--shadow-md)`,
       }}
@@ -35,11 +35,11 @@ export function TriggerNode({ data }: NodeProps) {
           {SOURCE_LABELS[source] || 'Trigger'}
         </span>
       </div>
-      <div className="text-xs font-medium truncate" style={{ color: 'var(--fg)' }}>
+      <div className="text-xs font-medium truncate" style={{ color: 'var(--foreground)' }}>
         {nodeData.label}
       </div>
       {nodeData.eventType && (
-        <div className="text-[10px] font-mono mt-1 truncate" style={{ color: 'var(--fg-muted)' }}>
+        <div className="text-[10px] font-mono mt-1 truncate" style={{ color: 'var(--muted-foreground)' }}>
           {nodeData.eventType}
         </div>
       )}
@@ -50,7 +50,7 @@ export function TriggerNode({ data }: NodeProps) {
           background: color,
           width: 10,
           height: 10,
-          border: '2px solid var(--bg-surface)',
+          border: '2px solid var(--card)',
         }}
       />
     </div>

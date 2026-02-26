@@ -7,13 +7,13 @@ import { Cog } from 'lucide-react';
 export function SkillNode({ data }: NodeProps) {
   const nodeData = data as Record<string, any>;
   const source = nodeData.source || '';
-  const color = SOURCE_COLORS[source] || 'var(--fg-muted)';
+  const color = SOURCE_COLORS[source] || 'var(--muted-foreground)';
 
   return (
     <div
       className="px-4 py-3 rounded-xl min-w-[200px]"
       style={{
-        background: 'var(--bg-surface)',
+        background: 'var(--card)',
         border: '1px solid var(--border)',
         boxShadow: 'var(--shadow-md)',
       }}
@@ -22,10 +22,10 @@ export function SkillNode({ data }: NodeProps) {
         type="target"
         position={Position.Top}
         style={{
-          background: 'var(--fg-muted)',
+          background: 'var(--muted-foreground)',
           width: 10,
           height: 10,
-          border: '2px solid var(--bg-surface)',
+          border: '2px solid var(--card)',
         }}
       />
       <div className="flex items-center gap-2 mb-2">
@@ -35,15 +35,15 @@ export function SkillNode({ data }: NodeProps) {
         >
           <Cog size={11} style={{ color }} />
         </div>
-        <span className="text-[10px] font-medium" style={{ color: 'var(--fg-muted)' }}>
+        <span className="text-[10px] font-medium" style={{ color: 'var(--muted-foreground)' }}>
           {SOURCE_LABELS[source] || 'Action'}
         </span>
       </div>
-      <div className="text-xs font-medium truncate" style={{ color: 'var(--fg)' }}>
+      <div className="text-xs font-medium truncate" style={{ color: 'var(--foreground)' }}>
         {nodeData.label}
       </div>
       {nodeData.eventType && (
-        <div className="text-[10px] font-mono mt-1 truncate" style={{ color: 'var(--fg-muted)' }}>
+        <div className="text-[10px] font-mono mt-1 truncate" style={{ color: 'var(--muted-foreground)' }}>
           {nodeData.eventType}
         </div>
       )}
@@ -51,10 +51,10 @@ export function SkillNode({ data }: NodeProps) {
         type="source"
         position={Position.Bottom}
         style={{
-          background: 'var(--fg-muted)',
+          background: 'var(--muted-foreground)',
           width: 10,
           height: 10,
-          border: '2px solid var(--bg-surface)',
+          border: '2px solid var(--card)',
         }}
       />
     </div>

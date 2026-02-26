@@ -1,10 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Header } from '@/components/layout/header';
+import { toast } from 'sonner';
+import { PageHeader } from '@/components/page-header';
 import { useApi } from '@/hooks/use-api';
 import { api } from '@/lib/api-client';
-import { Loader2, Building2, UserPlus, Check } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2, Building2, UserPlus } from 'lucide-react';
+
+const AVATAR_COLORS = ['#7c5cfc', '#e01e5a', '#2684ff', '#ff7a59', '#22c55e', '#f59e0b'];
 
 export default function SettingsPage() {
   const { data: org, refetch: refetchOrg } = useApi<any>('/org');
@@ -15,18 +27,10 @@ export default function SettingsPage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('MEMBER');
   const [inviting, setInviting] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
   useEffect(() => {
     if (org?.name) setOrgName(org.name);
   }, [org]);
-
-  function showMessage(text: string, type: 'success' | 'error' = 'success') {
-    setMessage(text);
-    setMessageType(type);
-    setTimeout(() => setMessage(''), 3000);
-  }
 
   async function handleUpdateOrg(e: React.FormEvent) {
     e.preventDefault();
@@ -34,9 +38,9 @@ export default function SettingsPage() {
     try {
       await api('/org', { method: 'PATCH', body: { name: orgName } });
       await refetchOrg();
-      showMessage('Organization updated');
+      toast.success('Organization updated');
     } catch (err: any) {
-      showMessage(err.message, 'error');
+      toast.error(err.message);
     } finally {
       setSaving(false);
     }
@@ -49,119 +53,119 @@ export default function SettingsPage() {
       await api('/org/members', { method: 'POST', body: { email: inviteEmail, role: inviteRole } });
       setInviteEmail('');
       await refetchMembers();
-      showMessage('Member invited');
+      toast.success('Member invited');
     } catch (err: any) {
-      showMessage(err.message, 'error');
+      toast.error(err.message);
     } finally {
       setInviting(false);
     }
   }
 
-  const AVATAR_COLORS = ['#7c5cfc', '#e01e5a', '#2684ff', '#ff7a59', '#22c55e', '#f59e0b'];
-
   return (
-    <div className="page-enter">
-      <Header title="Settings" />
-      <div className="p-8 space-y-8 max-w-2xl">
-        {/* Toast message */}
-        {message && (
-          <div
-            className="px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2 animate-slide-down"
-            style={{
-              background: messageType === 'success' ? 'var(--success-muted)' : 'var(--error-muted)',
-              color: messageType === 'success' ? 'var(--success)' : 'var(--error)',
-              border: `1px solid ${messageType === 'success' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
-            }}
-          >
-            {messageType === 'success' && <Check size={16} />}
-            {message}
-          </div>
-        )}
+    <div>
+      <PageHeader title="Settings" />
+      <div className="p-10 space-y-10 max-w-2xl">
 
-        {/* Org settings */}
+        {/* Organization */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <Building2 size={14} style={{ color: 'var(--fg-muted)' }} />
-            <h3 className="section-title">Organization</h3>
+            <Building2 size={14} className="text-muted-foreground" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Organization</h3>
           </div>
-          <div className="card" style={{ padding: 20 }}>
-            <form onSubmit={handleUpdateOrg} className="flex gap-3">
-              <input
-                type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)}
-                className="input flex-1"
-                placeholder="Organization name"
-              />
-              <button
-                type="submit" disabled={saving}
-                className="btn btn-primary"
-              >
-                {saving ? <Loader2 size={14} className="animate-spin" /> : 'Save'}
-              </button>
-            </form>
-          </div>
+          <Card>
+            <CardContent>
+              <form onSubmit={handleUpdateOrg} className="flex gap-3">
+                <div className="flex-1 space-y-1.5">
+                  <Label htmlFor="orgName" className="sr-only">Organization name</Label>
+                  <Input id="orgName" type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="Organization name" />
+                </div>
+                <Button type="submit" disabled={saving}>
+                  {saving ? <Loader2 size={14} className="animate-spin" /> : 'Save'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </section>
 
-        {/* Members */}
+        <Separator />
+
+        {/* Team Members */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <UserPlus size={14} style={{ color: 'var(--fg-muted)' }} />
-            <h3 className="section-title">Team Members</h3>
+            <UserPlus size={14} className="text-muted-foreground" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Team Members</h3>
           </div>
 
-          <div
-            className="rounded-xl overflow-hidden mb-4"
-            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
-          >
-            {members?.map((member: any, i: number) => (
-              <div
-                key={member.id}
-                className="list-row"
-              >
-                <div
-                  className="avatar avatar-sm"
-                  style={{
-                    background: `color-mix(in srgb, ${AVATAR_COLORS[i % AVATAR_COLORS.length]} 15%, transparent)`,
-                    color: AVATAR_COLORS[i % AVATAR_COLORS.length],
-                  }}
-                >
-                  {(member.name || member.email || 'U')[0].toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm" style={{ color: 'var(--fg)' }}>
-                    {member.name || member.email}
+          <Card className="p-0 gap-0 overflow-hidden mb-4">
+            {!members && (
+              <div className="p-2 space-y-1">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 px-6 py-3.5">
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-3 w-40" />
+                    </div>
+                    <Skeleton className="h-5 w-16 rounded-full" />
                   </div>
-                  <div className="text-xs" style={{ color: 'var(--fg-muted)' }}>{member.email}</div>
+                ))}
+              </div>
+            )}
+            {members?.map((member: any, i: number) => (
+              <div key={member.id} className="flex items-center gap-4 px-6 py-3.5 border-b border-border/50 last:border-b-0">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback
+                    style={{
+                      background: `color-mix(in srgb, ${AVATAR_COLORS[i % AVATAR_COLORS.length]} 15%, transparent)`,
+                      color: AVATAR_COLORS[i % AVATAR_COLORS.length],
+                    }}
+                    className="text-xs font-semibold"
+                  >
+                    {(member.name || member.email || 'U')[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm text-foreground">{member.name || member.email}</div>
+                  <div className="text-xs text-muted-foreground">{member.email}</div>
                 </div>
-                <span className={`badge ${member.role === 'OWNER' ? 'badge-accent' : member.role === 'ADMIN' ? 'badge-info' : 'badge-default'}`}>
+                <Badge
+                  variant={member.role === 'OWNER' ? 'accent' : member.role === 'ADMIN' ? 'info' : 'default'}
+                >
                   {member.role}
-                </span>
+                </Badge>
               </div>
             ))}
-          </div>
+          </Card>
 
-          <div className="card" style={{ padding: 20 }}>
-            <form onSubmit={handleInvite} className="flex gap-3">
-              <input
-                type="email" placeholder="Email address" value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)} required
-                className="input flex-1"
-              />
-              <select
-                value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}
-                className="input"
-                style={{ width: 120, flex: 'none' }}
-              >
-                <option value="MEMBER">Member</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-              <button
-                type="submit" disabled={inviting}
-                className="btn btn-primary"
-              >
-                {inviting ? <Loader2 size={14} className="animate-spin" /> : 'Invite'}
-              </button>
-            </form>
-          </div>
+          <Card>
+            <CardContent>
+              <form onSubmit={handleInvite} className="flex gap-3">
+                <div className="flex-1">
+                  <Label htmlFor="inviteEmail" className="sr-only">Email address</Label>
+                  <Input
+                    id="inviteEmail"
+                    type="email"
+                    placeholder="Email address"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <Select value={inviteRole} onValueChange={setInviteRole}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MEMBER">Member</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button type="submit" disabled={inviting}>
+                  {inviting ? <Loader2 size={14} className="animate-spin" /> : 'Invite'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </section>
       </div>
     </div>
